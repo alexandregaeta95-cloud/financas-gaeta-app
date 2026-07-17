@@ -1,0 +1,148 @@
+{
+  "entities": {
+    "Transaction": {
+      "title": "Transaction",
+      "description": "Financial transactions and logs.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "number" },
+        "data": { "type": "string" },
+        "valor": { "type": "number" },
+        "tipo": { "type": "string" },
+        "descricao": { "type": "string" },
+        "categoria": { "type": "string" },
+        "status": { "type": "string" }
+      },
+      "required": ["id", "data", "valor", "tipo", "descricao", "categoria", "status"]
+    },
+    "RiskZone": {
+      "title": "RiskZone",
+      "description": "Geographical danger zones and monitoring areas.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "number" },
+        "localizacao": { "type": "string" },
+        "latitude": { "type": "number" },
+        "longitude": { "type": "number" },
+        "dataRegistro": { "type": "string" },
+        "dataHora": { "type": "string" },
+        "status": { "type": "string" },
+        "nomeLocal": { "type": "string" },
+        "raioMetros": { "type": "number" },
+        "nivelRisco": { "type": "string", "enum": ["ALTO", "BAIXO", "MEDIO"] },
+        "statusGeral": { "type": "string", "enum": ["DISPARAR", "VAZIO", "ALERTA"] },
+        "ativo": { "type": "boolean" }
+      },
+      "required": ["id", "localizacao", "latitude", "longitude", "dataRegistro", "dataHora", "status", "nomeLocal", "raioMetros", "nivelRisco", "statusGeral", "ativo"]
+    },
+    "Infraction": {
+      "title": "Infraction",
+      "description": "Traffic infractions and appeals.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "protocolo": { "type": "string" },
+        "titulo": { "type": "string" },
+        "placa": { "type": "string" },
+        "veiculo": { "type": "string" },
+        "dataSubmissao": { "type": "string" },
+        "dataOcorrencia": { "type": "string" },
+        "localizacao": { "type": "string" },
+        "status": { "type": "string", "enum": ["EM_ANALISE", "APROVADO", "NEGADO"] },
+        "valorMulta": { "type": "number" },
+        "pontosCnh": { "type": "number" }
+      },
+      "required": ["id", "protocolo", "titulo", "placa", "veiculo", "dataSubmissao", "dataOcorrencia", "localizacao", "status", "valorMulta", "pontosCnh"]
+    },
+    "NonAppealedInfraction": {
+      "title": "NonAppealedInfraction",
+      "description": "Infractions queue waiting for appeal submissions.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "protocolo": { "type": "string" },
+        "placa": { "type": "string" },
+        "valor": { "type": "number" },
+        "pontos": { "type": "number" },
+        "dataOcorrencia": { "type": "string" },
+        "descricao": { "type": "string" }
+      },
+      "required": ["id", "protocolo", "placa", "valor", "pontos", "dataOcorrencia", "descricao"]
+    },
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile settings including custom avatar URL.",
+      "type": "object",
+      "properties": {
+        "avatarUrl": { "type": "string" }
+      },
+      "required": ["avatarUrl"]
+    },
+    "MedicalAppointment": {
+      "title": "MedicalAppointment",
+      "description": "Scheduled medical appointments and consultations.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "especialidade": { "type": "string" },
+        "medico": { "type": "string" },
+        "data": { "type": "string" },
+        "hora": { "type": "string" },
+        "local": { "type": "string" },
+        "observacoes": { "type": "string" },
+        "status": { "type": "string", "enum": ["Agendada", "Realizada", "Cancelada"] },
+        "lembreteAtivo": { "type": "boolean" }
+      },
+      "required": ["id", "especialidade", "medico", "data", "hora", "local", "status", "lembreteAtivo"]
+    },
+    "MedicalPrescription": {
+      "title": "MedicalPrescription",
+      "description": "Prescriptions and medications recommended by doctors.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "medico": { "type": "string" },
+        "especialidade": { "type": "string" },
+        "data": { "type": "string" },
+        "medicamentos": { "type": "string" },
+        "instrucoes": { "type": "string" },
+        "observacoes": { "type": "string" },
+        "dataVencimento": { "type": "string" },
+        "arquivoAnexo": { "type": "string" },
+        "nomeArquivoAnexo": { "type": "string" },
+        "tipoArquivoAnexo": { "type": "string" }
+      },
+      "required": ["id", "medico", "especialidade", "data", "medicamentos"]
+    }
+  },
+  "firestore": {
+    "/transactions/{id}": {
+      "schema": "Transaction",
+      "description": "Stores transaction records."
+    },
+    "/risk_zones/{id}": {
+      "schema": "RiskZone",
+      "description": "Stores user risk zone configurations."
+    },
+    "/infractions/{id}": {
+      "schema": "Infraction",
+      "description": "Stores user infraction records."
+    },
+    "/non_appealed/{id}": {
+      "schema": "NonAppealedInfraction",
+      "description": "Stores unappealed infraction queue items."
+    },
+    "/settings/profile": {
+      "schema": "UserProfile",
+      "description": "Stores user global configurations."
+    },
+    "/medical_appointments/{id}": {
+      "schema": "MedicalAppointment",
+      "description": "Stores user medical appointments."
+    },
+    "/medical_prescriptions/{id}": {
+      "schema": "MedicalPrescription",
+      "description": "Stores user medical prescriptions."
+    }
+  }
+}

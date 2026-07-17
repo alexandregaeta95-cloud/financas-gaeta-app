@@ -1,0 +1,18 @@
+{
+  "short_name": "Fluxo de Riqueza",
+  "name": "Fluxo de Riqueza - Finanças e Frotas",
+  "description": "Acompanhamento de recursos de infrações, monitoramento de zonas de risco e gestão financeira de frota e pessoal.",
+  "start_url": "/",
+  "background_color": "#020617",
+  "theme_color": "#10b981",
+  "display": "standalone",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/10542/10542475.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "name": "Remix: Finanças Gaeta",
+  "description": "Acompanhamento de recursos de infrações, monitoramento de zonas de risco e gestão financeira de frota e pessoal.",
+  "requestFramePermissions": [
+    "geolocation"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
