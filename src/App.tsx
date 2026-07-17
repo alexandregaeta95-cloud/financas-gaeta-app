@@ -1858,7 +1858,7 @@ export default function App() {
     let active = true;
     const interval = setInterval(async () => {
       try {
-        const response = await fetch(`https://ais-pre-j6dzlaj35dcjsxeip35qsr-135670082760.us-east1.run.app/api/webhooks/pending?since=${lastWebhookTimeRef.current}`);
+        const response = await fetch(`https://financas-gaeta-app.onrender.com/api/webhooks/pending?since=${lastWebhookTimeRef.current}`);
         if (!response.ok) return;
         const data = await response.json();
         if (data && Array.isArray(data.webhooks) && data.webhooks.length > 0) {
