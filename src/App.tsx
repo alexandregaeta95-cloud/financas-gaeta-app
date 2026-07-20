@@ -627,7 +627,7 @@ export default function App() {
             transactions={transactions} bankAccounts={bankAccountsState} creditCards={creditCardsState}
             onNavigate={handleTabNavigate} appointments={appointments} prescriptions={prescriptions}
             compromissos={compromissos} scheduledServices={scheduledServices} onEditTransaction={handleEditTransaction}
-            onAddTransaction={handleAddTransaction} onTriggerNotification={() => {}} onTriggerBankIntegration={() => {}}
+            onAddTransaction={handleAddTransaction} onTriggerNotification={(notif) => setBankIntegrationNotification({ id: Date.now().toString(), bancoNome: notif.banco, bancoId: notif.accountId, valor: notif.valor, descricao: notif.descricao, isLoadingSuggestion: false })} onTriggerBankIntegration={(bancoId, valor, descricao) => { const bankObj = bankAccountsState.find(b => b.id === bancoId); setBankIntegrationNotification({ id: Date.now().toString(), bancoNome: bankObj ? bankObj.nome : "BANCO", bancoId, valor, descricao: descricao || "Nova transação Pix" }); }}
             showConfirm={showConfirm} showAlert={showAlert} riskZones={riskZones} registeredVehicles={registeredVehicles}
             setRegisteredVehicles={setRegisteredVehicles} categoryBudgets={categoryBudgets} setCategoryBudgets={setCategoryBudgets}
             customCategories={customCategories} ipvaLeadDays={ipvaLeadDays} setIpvaLeadDays={setIpvaLeadDays}
@@ -648,7 +648,7 @@ export default function App() {
             onGoogleLogout={handleGoogleLogout} onToggleAutoSync={handleToggleAutoSync} onTriggerSync={triggerSync}
             onTriggerImport={triggerImport} showAlert={showAlert} showConfirm={showConfirm} registeredVehicles={registeredVehicles}
             setRegisteredVehicles={setRegisteredVehicles} bankAccounts={bankAccountsState} onUpdateBankAccounts={setBankAccountsState}
-            customCategories={customCategories} onTriggerBankIntegration={() => {}}
+            customCategories={customCategories} onTriggerBankIntegration={(bancoId, valor, descricao) => { const bankObj = bankAccountsState.find(b => b.id === bancoId); setBankIntegrationNotification({ id: Date.now().toString(), bancoNome: bankObj ? bankObj.nome : "BANCO", bancoId, valor, descricao: descricao || "Nova transação Pix" }); }}
           />
         );
       case 'analysis': return <AnalysisTab transactions={transactions} onNavigate={handleTabNavigate} showAlert={showAlert} />;
