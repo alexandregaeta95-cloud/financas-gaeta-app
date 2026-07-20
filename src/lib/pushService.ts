@@ -23,7 +23,7 @@ if (fs.existsSync(KEYS_FILE)) {
 
 // Configura os detalhes VAPID para a biblioteca web-push
 webpush.setVapidDetails(
-  "mailto:AlexandreGaeta95@gmail.com",
+  'mailto:alexandregaeta95@gmail.com',
   vapidKeys.publicKey,
   vapidKeys.privateKey
 );
