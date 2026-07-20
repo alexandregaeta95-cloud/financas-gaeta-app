@@ -280,29 +280,6 @@ export default function App() {
     showAlert("Editar Pix", "Os dados do Pix foram carregados no formulário. Ajuste e salve!");
   };
 
-  const triggerSimulationNotification = (notif: any) => {
-    setBankIntegrationNotification({
-      id: Date.now().toString(),
-      bancoNome: notif.banco || "BANCO",
-      bancoId: notif.accountId || 1,
-      valor: notif.valor || 0,
-      descricao: notif.descricao || "Pix Simulado",
-      isLoadingSuggestion: false
-    });
-  };
-
-  const triggerBankIntegration = (bancoId: number, valor: number, descricao: string) => {
-    const bankObj = bankAccountsState.find(b => b.id === bancoId);
-    setBankIntegrationNotification({
-      id: Date.now().toString(),
-      bancoNome: bankObj ? bankObj.nome : "BANCO",
-      bancoId,
-      valor,
-      descricao: descricao || "Nova transação Pix recebida",
-      isLoadingSuggestion: false
-    });
-  };
-
   useEffect(() => {
     localStorage.setItem('wealthflow_category_budgets', JSON.stringify(categoryBudgets));
     localStorage.setItem('wealthflow_ipva_lead_days', String(ipvaLeadDays));
@@ -405,11 +382,6 @@ export default function App() {
   const [spreadsheetUrl, setSpreadsheetUrl] = useState<string>('');
   const [autoSync, setAutoSync] = useState<boolean>(false);
 
-  const hasExpiringTransactions = React.useMemo(() => transactions.some(t => !['PAGO', 'RECEBIDO'].includes(String(t.status || '').toUpperCase())), [transactions]);
-  const hasActiveAppointments = React.useMemo(() => appointments.some(appt => appt.status === 'Agendada'), [appointments]);
-  const hasUrgentIpva = React.useMemo(() => checkIpvaAlerts(registeredVehicles, new Date(), transactions, ipvaLeadDays).some(a => a.daysRemaining < 10), [registeredVehicles, transactions, ipvaLeadDays]);
-  const hasOverdueServices = React.useMemo(() => scheduledServices.some(s => s.status === 'PENDENTE'), [scheduledServices]);
-
   const showAlert = (title: string, message: string) => setDialog({ isOpen: true, title, message, isConfirm: false });
   const showConfirm = (title: string, message: string, onConfirm: () => void) => setDialog({ isOpen: true, title, message, isConfirm: true, onConfirm });
 
@@ -454,7 +426,7 @@ export default function App() {
             transactions={transactions} bankAccounts={bankAccountsState} creditCards={creditCardsState}
             onNavigate={handleTabNavigate} appointments={appointments} prescriptions={prescriptions}
             compromissos={compromissos} scheduledServices={scheduledServices} onEditTransaction={handleEditTransaction}
-            onAddTransaction={handleAddTransaction} onTriggerNotification={triggerSimulationNotification} onTriggerBankIntegration={triggerBankIntegration}
+            onAddTransaction={handleAddTransaction} onTriggerNotification={(notif) => setBankIntegrationNotification({ id: Date.now().toString(), bancoNome: notif.banco, bancoId: notif.accountId, valor: notif.valor, descricao: notif.descricao })} onTriggerBankIntegration={(bancoId, valor, descricao) => { const bankObj = bankAccountsState.find(b => b.id === bancoId); setBankIntegrationNotification({ id: Date.now().toString(), bancoNome: bankObj ? bankObj.nome : "BANCO", bancoId, valor, descricao: descricao || "Nova transação Pix" }); }}
             showConfirm={showConfirm} showAlert={showAlert} riskZones={riskZones} registeredVehicles={registeredVehicles}
             setRegisteredVehicles={setRegisteredVehicles} categoryBudgets={categoryBudgets} setCategoryBudgets={setCategoryBudgets}
             customCategories={customCategories} ipvaLeadDays={ipvaLeadDays} setIpvaLeadDays={setIpvaLeadDays}
@@ -475,7 +447,7 @@ export default function App() {
             onGoogleLogout={logout} onToggleAutoSync={setAutoSync} onTriggerSync={() => {}}
             onTriggerImport={() => {}} showAlert={showAlert} showConfirm={showConfirm} registeredVehicles={registeredVehicles}
             setRegisteredVehicles={setRegisteredVehicles} bankAccounts={bankAccountsState} onUpdateBankAccounts={setBankAccountsState}
-            customCategories={customCategories} onTriggerBankIntegration={triggerBankIntegration}
+            customCategories={customCategories} onTriggerBankIntegration={(bancoId, valor, descricao) => { const bankObj = bankAccountsState.find(b => b.id === bancoId); setBankIntegrationNotification({ id: Date.now().toString(), bancoNome: bankObj ? bankObj.nome : "BANCO", bancoId, valor, descricao: descricao || "Nova transação Pix" }); }}
           />
         );
       case 'analysis': return <AnalysisTab transactions={transactions} onNavigate={handleTabNavigate} showAlert={showAlert} />;
@@ -511,7 +483,7 @@ export default function App() {
         
         <AnimatePresence>
           {isAppLocked && securityConfig.enabled && (
-            <motion.div initial={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-[100]">
+            <motion.div key="app-lock-screen-wrapper" initial={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-[100]">
               <LockScreen securityConfig={securityConfig} onUnlock={() => setIsAppLocked(false)} avatarUrl={avatarUrl} />
             </motion.div>
           )}
@@ -525,23 +497,33 @@ export default function App() {
           </div>
         </header>
 
-        <main className="flex-grow overflow-y-auto px-4 pt-3 pb-24 relative bg-slate-950">
-          <AnimatePresence>
+        {/* ANIMAÇÃO DO BANNER INTERATIVO COM CHAVE DE RENDERIZAÇÃO SECURA */}
+        <div className="absolute top-12 left-0 right-0 z-[99999] px-4 pointer-events-none">
+          <AnimatePresence mode="popLayout">
             {bankIntegrationNotification && (
-              <motion.div initial={{ opacity: 0, y: -100 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -40 }} className="absolute top-4 left-4 right-4 z-[9999] bg-[#2E3033] text-white rounded-[28px] p-5 shadow-2xl flex flex-col gap-3.5 border border-white/5">
+              <motion.div 
+                key="bank-push-banner-interactive"
+                initial={{ opacity: 0, y: -40, scale: 0.9 }} 
+                animate={{ opacity: 1, y: 0, scale: 1 }} 
+                exit={{ opacity: 0, y: -30, scale: 0.95 }} 
+                className="w-full bg-[#2E3033] text-white rounded-[28px] p-5 shadow-2xl flex flex-col gap-3.5 border border-white/5 pointer-events-auto"
+              >
                 <div className="flex items-center justify-between">
                   <span className="text-[13px] font-medium text-slate-200">{bankIntegrationNotification.bancoNome}</span>
-                  <button onClick={() => setBankIntegrationNotification(null)} className="material-symbols-outlined text-base text-slate-400">close</button>
+                  <button onClick={() => setBankIntegrationNotification(null)} className="material-symbols-outlined text-base text-slate-400 cursor-pointer">close</button>
                 </div>
-                <h4 className="text-[15px] font-medium text-slate-5">Nova transação de R$ {bankIntegrationNotification.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</h4>
+                <h4 className="text-[15px] font-medium text-slate-100">Nova transação de R$ {bankIntegrationNotification.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</h4>
+                <p className="text-[11px] text-slate-400 italic font-mono">{bankIntegrationNotification.descricao}</p>
                 <div className="flex items-center gap-2 pt-1">
-                  <button onClick={() => handleImportBankIntegration('RECEITA')} className="flex-1 py-2 bg-[#3C3E44] text-[#E3E3E3] font-medium rounded-full text-xs">Receita</button>
-                  <button onClick={() => handleImportBankIntegration('DESPESA')} className="flex-1 py-2 bg-[#3C3E44] text-[#E3E3E3] font-medium rounded-full text-xs">Despesa</button>
+                  <button onClick={() => handleImportBankIntegration('RECEITA')} className="flex-1 py-2 bg-[#3C3E44] hover:bg-[#4E5158] text-[#E3E3E3] font-bold rounded-full text-xs cursor-pointer transition-colors">Receita</button>
+                  <button onClick={() => handleImportBankIntegration('DESPESA')} className="flex-1 py-2 bg-[#3C3E44] hover:bg-[#4E5158] text-[#E3E3E3] font-bold rounded-full text-xs cursor-pointer transition-colors">Despesa</button>
                 </div>
               </motion.div>
             )}
           </AnimatePresence>
+        </div>
 
+        <main className="flex-grow overflow-y-auto px-4 pt-3 pb-24 relative bg-slate-950">
           <AnimatePresence mode="wait">
             <motion.div key={currentTab} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} className="w-full">
               {renderCurrentView()}
@@ -574,7 +556,7 @@ export default function App() {
 
       <AnimatePresence>
         {dialog.isOpen && (
-          <div className="fixed inset-0 flex items-center justify-center p-4 z-[9999]">
+          <div className="fixed inset-0 flex items-center justify-center p-4 z-[999999]">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-slate-950/80" />
             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-slate-900 border border-slate-800 rounded-2xl p-5 w-full max-w-sm relative z-10 text-center">
               <h3 className="text-sm font-bold uppercase text-slate-100 mb-2">{dialog.title}</h3>
