@@ -465,9 +465,12 @@ const handleManualSync = async () => {
             customCategories={customCategories} onTriggerBankIntegration={(bancoId, valor, descricao) => { const bankObj = bankAccountsState.find(b => b.id === bancoId); setBankIntegrationNotification({ id: Date.now().toString(), bancoNome: bankObj ? bankObj.nome : "BANCO", bancoId, valor, descricao: descricao || "Nova transação Pix" }); }}
           />
         );
-      case 'analysis': return <AnalysisTab transactions={transactions} onNavigate={handleTabNavigate} showAlert={showAlert} />;
-      case 'profile':
+case 'profile':
         return (
+          <ProfileTab 
+            onTriggerNotification={(notif) => setBankIntegrationNotification({ id: Date.now().toString(), bancoNome: notif.banco || "BANCO", bancoId: notif.accountId || 1, valor: notif.valor || 50, descricao: notif.descricao || "Pix de Teste Nativo" })}
+            bankAccounts={bankAccountsState} setBankAccounts={setBankAccountsState} creditCards={creditCardsState}
+          
           <ProfileTab 
             bankAccounts={bankAccountsState} setBankAccounts={setBankAccountsState} creditCards={creditCardsState}
             setCreditCards={setCreditCardsState} avatarUrl={avatarUrl} onAvatarChange={setAvatarUrl}
