@@ -417,20 +417,21 @@ export default function App() {
       setCurrentTab(tab);
     }
   };
+
   
 const handleManualSync = async () => {
     if (!googleToken) {
-      showAlert("Erro de Conexão", "Você precisa estar conectado ao Google Drive.");
+      alert("Você precisa estar conectado ao Google Drive.");
       return;
     }
     try {
-      const txsToSend = cleanDuplicateTransactions(transactions);
-      await syncDataToSpreadsheet(googleToken, txsToSend, riskZones, infractions);
-      showAlert("Sucesso", "Todos os lançamentos locais foram enviados para a planilha!");
+      await syncDataToSpreadsheet(googleToken, transactions, [], []);
+      alert("Sincronização forçada com sucesso!");
     } catch (error) {
-      showAlert("Erro na Sincronização", "Não foi possível enviar os dados para a planilha.");
+      alert("Erro ao enviar: " + (error instanceof Error ? error.message : String(error)));
     }
   };
+
   
   const renderCurrentView = () => {
     switch (currentTab) {
