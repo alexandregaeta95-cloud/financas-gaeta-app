@@ -243,7 +243,7 @@ export default function App() {
   const [notifyBudget, setNotifyBudget] = useState<boolean>(() => localStorage.getItem('wealthflow_notify_budget') !== 'false');
   const [notifyAppointments, setNotifyAppointments] = useState<boolean>(() => localStorage.getItem('wealthflow_notify_appointments') !== 'false');
 
-  const [bankAccountsState, setBankAccountsState] = useState<BankAccount[]>(() => bankAccounts);
+  const [bankAccountsState, setBankAccountsState] = useState<BankAccount[]>(() => bankAccounts)  
   const [creditCardsState, setCreditCardsState] = useState<CreditCard[]>(() => creditCards);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [timeStr, setTimeStr] = useState<string>('00:00');
@@ -417,7 +417,21 @@ export default function App() {
       setCurrentTab(tab);
     }
   };
-
+  
+const handleManualSync = async () => {
+    if (!googleToken) {
+      showAlert("Erro de Conexão", "Você precisa estar conectado ao Google Drive.");
+      return;
+    }
+    try {
+      const txsToSend = cleanDuplicateTransactions(transactions);
+      await syncDataToSpreadsheet(googleToken, txsToSend, riskZones, infractions);
+      showAlert("Sucesso", "Todos os lançamentos locais foram enviados para a planilha!");
+    } catch (error) {
+      showAlert("Erro na Sincronização", "Não foi possível enviar os dados para a planilha.");
+    }
+  };
+  
   const renderCurrentView = () => {
     switch (currentTab) {
       case 'dashboard':
@@ -444,7 +458,7 @@ export default function App() {
             showAddForm={showAddTxForm} setShowAddForm={setShowAddTxForm} googleUser={googleUser}
             googleToken={googleToken} isSyncing={false} isImporting={false} spreadsheetUrl={spreadsheetUrl}
             syncError={null} lastSyncedTime="" autoSync={autoSync} onGoogleLogin={googleSignIn}
-            onGoogleLogout={logout} onToggleAutoSync={setAutoSync} onTriggerSync={() => {}}
+            onGoogleLogout={logout} onToggleAutoSync={setAutoSync} onTriggerSync={handleManualSync}
             onTriggerImport={() => {}} showAlert={showAlert} showConfirm={showConfirm} registeredVehicles={registeredVehicles}
             setRegisteredVehicles={setRegisteredVehicles} bankAccounts={bankAccountsState} onUpdateBankAccounts={setBankAccountsState}
             customCategories={customCategories} onTriggerBankIntegration={(bancoId, valor, descricao) => { const bankObj = bankAccountsState.find(b => b.id === bancoId); setBankIntegrationNotification({ id: Date.now().toString(), bancoNome: bankObj ? bankObj.nome : "BANCO", bancoId, valor, descricao: descricao || "Nova transação Pix" }); }}
