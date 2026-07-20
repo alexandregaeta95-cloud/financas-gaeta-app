@@ -455,7 +455,7 @@ export default function App() {
         setInfractions(await getInfractionsFromDb());
         setNonAppealed(await getNonAppealedFromDb());
         setAppointments(await getMedicalAppointmentsFromDb());
-        setPrescriptions(await getMedicalPresetsFromDb ? await getMedicalPrescriptionsFromDb() : []);
+       setPrescriptions(await getMedicalPrescriptionsFromDb());
         
         const vehicleList = await getRegisteredVehiclesFromDb();
         if (vehicleList?.length > 0) setRegisteredVehicles(vehicleList);
