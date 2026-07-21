@@ -8,4 +8,4 @@ export const db = initializeFirestore(app, {
   localCache: persistentLocalCache({
     tabManager: persistentMultipleTabManager(),
   }),
-}, "ai-studio-wealthflow-61285b93-a0c4-4e1e-9c6a-d0ada8614f38");
+});
