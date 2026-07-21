@@ -384,7 +384,48 @@ export default function App() {
 
   const showAlert = (title: string, message: string) => setDialog({ isOpen: true, title, message, isConfirm: false });
   const showConfirm = (title: string, message: string, onConfirm: () => void) => setDialog({ isOpen: true, title, message, isConfirm: true, onConfirm });
+const [isSyncing, setIsSyncing] = useState<boolean>(false);
 
+  const triggerSync = async (tokenToUse?: string) => {
+    const activeToken = tokenToUse || googleToken;
+    if (!activeToken) {
+      showAlert("Não Conectado", "Conecte sua conta do Google Drive primeiro para sincronizar.");
+      return;
+    }
+
+    setIsSyncing(true);
+    try {
+      const sheetId = await findOrCreateSpreadsheet(activeToken);
+      
+      const url = await syncDataToSpreadsheet(
+        activeToken, 
+        sheetId, 
+        transactions, 
+        infractions, 
+        riskZones, 
+        appointments, 
+        prescriptions, 
+        compromissos, 
+        registeredVehicles, 
+        performedServices, 
+        scheduledServices, 
+        bankAccountsState, 
+        creditCardsState
+      );
+      
+      setSpreadsheetUrl(url);
+      const nowStr = new Date().toLocaleString('pt-BR');
+      localStorage.setItem('wealthflow_spreadsheet_url', url);
+      localStorage.setItem('wealthflow_last_synced_time', nowStr);
+
+      showAlert("Sincronizado!", "Sua planilha do Google Sheets foi atualizada com sucesso!");
+    } catch (err: any) {
+      console.error("Erro ao sincronizar planilha:", err);
+      showAlert("Erro na Sincronização", err.message || "Falha ao gravar os dados na planilha.");
+    } finally {
+      setIsSyncing(false);
+    }
+  };
   useEffect(() => {
     const interval = setInterval(() => {
       setTimeStr(new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }));
